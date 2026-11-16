@@ -1,0 +1,17 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: golang:1.27.4-bookworm
+    steps:
+      - uses: actions/checkout@v4
+      - run: test -z "$(gofmt -l .)"
+      - run: go vet ./...
+      - run: go test -race ./...
+      - run: ./test-host.sh
+      - run: go build -buildmode=c-shared -o /tmp/expose-quota.so .
