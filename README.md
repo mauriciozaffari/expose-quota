@@ -4,14 +4,17 @@ A quota-only plugin for CLIProxyAPI v8.0.23. It exposes redacted Antigravity, Cl
 
 ## Install
 
-Download the release built for your CPA host's OS and architecture. The Linux AMD64 release targets glibc and CPA v8.0.23; other platforms must build from source.
+Once the [store submission](https://github.com/router-for-me/CLIProxyAPI-Plugins-Store/pull/380) is merged, install `expose-quota` through CPA's plugin store. Until then, install the release manually.
+
+The v0.1.0 store archive supports Linux AMD64 with glibc 2.17 or later and CPA v8.0.23. Other platforms must build from source.
 
 ```sh
 VERSION=0.1.0
-curl -fLO "https://github.com/mauriciozaffari/expose-quota/releases/download/v${VERSION}/expose-quota-linux-amd64.tar.gz"
-curl -fLO "https://github.com/mauriciozaffari/expose-quota/releases/download/v${VERSION}/SHA256SUMS"
-sha256sum --ignore-missing -c SHA256SUMS
-tar -xzf expose-quota-linux-amd64.tar.gz
+ASSET="expose-quota_${VERSION}_linux_amd64.zip"
+curl -fLO "https://github.com/mauriciozaffari/expose-quota/releases/download/v${VERSION}/${ASSET}"
+curl -fLO "https://github.com/mauriciozaffari/expose-quota/releases/download/v${VERSION}/checksums.txt"
+sha256sum --check checksums.txt
+unzip "$ASSET"
 install -m 755 expose-quota.so /path/to/cpa/plugins/expose-quota.so
 ```
 
