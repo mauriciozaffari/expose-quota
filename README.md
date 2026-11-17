@@ -51,6 +51,4 @@ go build -buildmode=c-shared -o expose-quota.so .
 
 ## Contract and limitations
 
-`GET /v0/resource/plugins/expose-quota/quota.json` requires the bearer key and performs a fresh read on each request. Responses are `no-store`; failed, missing, expired or unsupported credentials are unknown, never exhausted. Accounts are anonymous and have no stable identifiers. The plugin reads Antigravity, Claude and Codex OAuth credentials through host callbacks and sends requests directly to allowlisted provider hosts, without redirects. It does not inherit CPA's outbound proxy. Ollama Cloud config keys are not available through CPA's auth-file callbacks and are not supported. No snapshot cache or background refresh is implemented.
-
-Installing this plugin alone does not enable quota-aware routing in Race Control; the standalone gateway still needs to consume its snapshots.
+`GET /v0/resource/plugins/expose-quota/quota.json` requires the bearer key and performs a fresh read on each request. Responses are `no-store`; failed, missing or expired credentials are reported as unknown, never exhausted. Accounts are anonymous and have no stable identifiers. The plugin reads Antigravity, Claude and Codex OAuth credentials through host callbacks and sends requests directly to allowlisted provider hosts, without redirects.
