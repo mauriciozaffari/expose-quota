@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestAuthAndRedaction(t *testing.T) {
@@ -106,6 +107,21 @@ func TestCanonicalSnapshotWireFormat(t *testing.T) {
 		if _, ok := window[field]; ok {
 			t.Fatalf("unexpected legacy field %s", field)
 		}
+	}
+}
+
+func TestCanonicalWindowFields(t *testing.T) {
+	reset := time.Date(2030, 1, 2, 3, 4, 5, 0, time.UTC)
+	data, err := json.Marshal(Window{ID: "weekly", RemainingFraction: 0.5, ResetTime: reset})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fields map[string]any
+	if err := json.Unmarshal(data, &fields); err != nil {
+		t.Fatal(err)
+	}
+	if fields["name"] != "weekly" || fields["reset_at"] != "2030-01-02T03:04:05Z" {
+		t.Fatalf("unexpected canonical fields: %s", data)
 	}
 }
 

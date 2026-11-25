@@ -51,4 +51,6 @@ go build -buildmode=c-shared -o expose-quota.so .
 
 ## Contract and limitations
 
+The quota endpoint emits schema version 1. Upgrade consumers to accept version 1 before deploying this plugin. When rolling back, roll back the plugin before consumers.
+
 `GET /v0/resource/plugins/expose-quota/quota.json` requires the bearer key and performs a fresh read on each request. Responses are `no-store`; failed, missing or expired credentials are reported as unknown, never exhausted. Accounts are anonymous and have no stable identifiers. The plugin reads Antigravity, Claude and Codex OAuth credentials through host callbacks and sends requests directly to allowlisted provider hosts, without redirects.
