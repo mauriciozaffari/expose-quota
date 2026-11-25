@@ -1,15 +1,15 @@
 # expose-quota
 
-A quota-only plugin for CLIProxyAPI v8.0.23. It exposes redacted Antigravity, Claude and Codex OAuth quota snapshots; it does not route requests.
+A quota-only plugin for CLIProxyAPI v8.x hosts. It exposes redacted Antigravity, Claude and Codex OAuth quota snapshots; it does not route requests. Registration negotiates the host's plugin schema (6 through the version of the SDK it was built against), so one binary loads across CPA releases instead of pinning one.
 
 ## Install
 
 Once the [store submission](https://github.com/router-for-me/CLIProxyAPI-Plugins-Store/pull/380) is merged, install `expose-quota` through CPA's plugin store. Until then, install the release manually.
 
-The v0.2.0 store archive supports Linux AMD64 with glibc 2.17 or later and CPA v8.0.23. Other platforms must build from source.
+The v0.2.1 store archive supports Linux AMD64 with glibc 2.17 or later and CPA hosts from v8.0.23 (plugin schema 6) through v8.1.4 (schema 8). Other platforms must build from source.
 
 ```sh
-VERSION=0.2.0
+VERSION=0.2.1
 ASSET="expose-quota_${VERSION}_linux_amd64.zip"
 curl -fLO "https://github.com/mauriciozaffari/expose-quota/releases/download/v${VERSION}/${ASSET}"
 curl -fLO "https://github.com/mauriciozaffari/expose-quota/releases/download/v${VERSION}/checksums.txt"

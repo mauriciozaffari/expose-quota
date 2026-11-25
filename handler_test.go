@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 	"net/http"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginabi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 )
 
 func TestAuthAndRedaction(t *testing.T) {
@@ -138,13 +141,30 @@ func TestAuthFailsBeforeHost(t *testing.T) {
 }
 
 func TestRegistrationMetadata(t *testing.T) {
-	raw, status := handle("plugin.register", []byte(`{"schema_version":6}`))
-	var result struct {
-		Result struct {
-			Metadata pluginapi.Metadata `json:"metadata"`
-		} `json:"result"`
+	for _, version := range []uint32{minPluginSchemaVersion, pluginabi.SchemaVersion} {
+		raw, status := handle("plugin.register", []byte(`{"schema_version":`+strconv.FormatUint(uint64(version), 10)+`}`))
+		var result struct {
+			Result struct {
+				SchemaVersion uint32             `json:"schema_version"`
+				Metadata      pluginapi.Metadata `json:"metadata"`
+			} `json:"result"`
+		}
+		if status != 0 || json.Unmarshal(raw, &result) != nil {
+			t.Fatalf("schema %d: registration failed: %s", version, raw)
+		}
+		if result.Result.SchemaVersion != version {
+			t.Fatalf("schema %d: reply echoes %d", version, result.Result.SchemaVersion)
+		}
+		if result.Result.Metadata.Author == "" || result.Result.Metadata.GitHubRepository == "" {
+			t.Fatalf("schema %d: registration lacks required metadata", version)
+		}
 	}
-	if status != 0 || json.Unmarshal(raw, &result) != nil || result.Result.Metadata.Author == "" || result.Result.Metadata.GitHubRepository == "" {
-		t.Fatal("registration lacks required metadata")
+}
+
+func TestRegistrationRejectsUnknownSchema(t *testing.T) {
+	for _, version := range []uint32{minPluginSchemaVersion - 1, pluginabi.SchemaVersion + 1} {
+		if raw, status := handle("plugin.register", []byte(`{"schema_version":`+strconv.FormatUint(uint64(version), 10)+`}`)); status == 0 {
+			t.Fatalf("schema %d: registration unexpectedly accepted: %s", version, raw)
+		}
 	}
 }

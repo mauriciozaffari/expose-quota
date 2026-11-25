@@ -26,6 +26,12 @@ type providerReport struct {
 
 var readers = []AccountReader{AntigravityAccountReader{}, ClaudeAccountReader{}, CodexAccountReader{}}
 
+// minPluginSchemaVersion is the oldest host schema this plugin can speak: the
+// first version whose management responses return JSON bodies unescaped (see
+// pluginapi.ManagementResponse). Older hosts HTML-escape response strings,
+// which would corrupt quota.json for consumers.
+const minPluginSchemaVersion = 6
+
 type credentialHost interface {
 	ListAuthFiles(context.Context) ([]pluginapi.HostAuthFileEntry, error)
 	GetAuthFile(context.Context, string) (pluginapi.HostAuthGetResponse, error)
@@ -55,14 +61,14 @@ func handle(method string, raw []byte) ([]byte, int) {
 		var req struct {
 			SchemaVersion uint32 `json:"schema_version"`
 		}
-		if json.Unmarshal(raw, &req) != nil || req.SchemaVersion != pluginabi.SchemaVersion {
+		if json.Unmarshal(raw, &req) != nil || req.SchemaVersion < minPluginSchemaVersion || req.SchemaVersion > pluginabi.SchemaVersion {
 			return failure()
 		}
 		return envelope(struct {
 			SchemaVersion uint32             `json:"schema_version"`
 			Metadata      pluginapi.Metadata `json:"metadata"`
 			Capabilities  map[string]bool    `json:"capabilities"`
-		}{pluginabi.SchemaVersion, pluginapi.Metadata{Name: "expose-quota", Version: "0.2.0", Author: "Mauricio Zaffari", GitHubRepository: "https://github.com/mauriciozaffari/expose-quota"}, map[string]bool{"management_api": true}})
+		}{req.SchemaVersion, pluginapi.Metadata{Name: "expose-quota", Version: "0.2.1", Author: "Mauricio Zaffari", GitHubRepository: "https://github.com/mauriciozaffari/expose-quota"}, map[string]bool{"management_api": true}})
 	case pluginabi.MethodPluginShutdown:
 		return envelope(struct{}{})
 	case pluginabi.MethodManagementRegister:
