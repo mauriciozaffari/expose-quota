@@ -6,10 +6,10 @@ A quota-only plugin for CLIProxyAPI v8.0.23. It exposes redacted Antigravity, Cl
 
 Once the [store submission](https://github.com/router-for-me/CLIProxyAPI-Plugins-Store/pull/380) is merged, install `expose-quota` through CPA's plugin store. Until then, install the release manually.
 
-The v0.1.0 store archive supports Linux AMD64 with glibc 2.17 or later and CPA v8.0.23. Other platforms must build from source.
+The v0.2.0 store archive supports Linux AMD64 with glibc 2.17 or later and CPA v8.0.23. Other platforms must build from source.
 
 ```sh
-VERSION=0.1.0
+VERSION=0.2.0
 ASSET="expose-quota_${VERSION}_linux_amd64.zip"
 curl -fLO "https://github.com/mauriciozaffari/expose-quota/releases/download/v${VERSION}/${ASSET}"
 curl -fLO "https://github.com/mauriciozaffari/expose-quota/releases/download/v${VERSION}/checksums.txt"

@@ -62,7 +62,7 @@ func handle(method string, raw []byte) ([]byte, int) {
 			SchemaVersion uint32             `json:"schema_version"`
 			Metadata      pluginapi.Metadata `json:"metadata"`
 			Capabilities  map[string]bool    `json:"capabilities"`
-		}{pluginabi.SchemaVersion, pluginapi.Metadata{Name: "expose-quota", Version: "0.1.0", Author: "Mauricio Zaffari", GitHubRepository: "https://github.com/mauriciozaffari/expose-quota"}, map[string]bool{"management_api": true}})
+		}{pluginabi.SchemaVersion, pluginapi.Metadata{Name: "expose-quota", Version: "0.2.0", Author: "Mauricio Zaffari", GitHubRepository: "https://github.com/mauriciozaffari/expose-quota"}, map[string]bool{"management_api": true}})
 	case pluginabi.MethodPluginShutdown:
 		return envelope(struct{}{})
 	case pluginabi.MethodManagementRegister:
