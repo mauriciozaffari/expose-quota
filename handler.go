@@ -110,9 +110,10 @@ func quotaResponse(req pluginapi.ManagementRequest) ([]byte, int) {
 	defer cancel()
 	reports := readReports(ctx, host, quotaTransport)
 	return respond(200, struct {
-		Generated time.Time        `json:"generated_at"`
-		Providers []providerReport `json:"providers"`
-	}{time.Now().UTC(), reports})
+		SchemaVersion int              `json:"schema_version"`
+		Generated     time.Time        `json:"generated_at"`
+		Providers     []providerReport `json:"providers"`
+	}{1, time.Now().UTC(), reports})
 }
 func readReports(ctx context.Context, h credentialHost, transport HTTPDoer) []providerReport {
 	reports := make([]providerReport, 0, len(readers))

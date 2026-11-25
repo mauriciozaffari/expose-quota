@@ -27,14 +27,17 @@ const (
 	Valid           Validity = "valid"
 )
 
+// Window is one quota limit in the canonical document. Only the canonical
+// fields are serialized: the reader's internal scope, provenance and validity
+// never reach the gateway, which treats every emitted window as valid evidence.
 type Window struct {
-	ID                WindowID  `json:"id"`
-	Scope             Scope     `json:"scope"`
+	ID                WindowID  `json:"name"`
+	Scope             Scope     `json:"-"`
 	RemainingFraction float64   `json:"remaining_fraction"`
-	ResetTime         time.Time `json:"reset_time,omitempty"`
-	FetchedAt         time.Time `json:"fetched_at"`
-	Source            Source    `json:"source"`
-	Validity          Validity  `json:"validity"`
+	ResetTime         time.Time `json:"reset_at,omitempty"`
+	FetchedAt         time.Time `json:"-"`
+	Source            Source    `json:"-"`
+	Validity          Validity  `json:"-"`
 }
 type Group struct {
 	ID      GroupID  `json:"id"`

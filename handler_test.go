@@ -66,6 +66,49 @@ func TestMultipleUnknownAndRedaction(t *testing.T) {
 		t.Fatalf("unexpected reports %s", s)
 	}
 }
+func TestCanonicalSnapshotWireFormat(t *testing.T) {
+	oldHost, oldTransport := host, quotaTransport
+	host = &fakeHost{entries: []pluginapi.HostAuthFileEntry{{Provider: "claude", AuthIndex: "one"}}, creds: map[string]pluginapi.HostAuthGetResponse{"one": {JSON: []byte(`{"access_token":"secret","expired":"2099-01-01T00:00:00Z"}`)}}}
+	quotaTransport = fakeHTTP{}
+	t.Cleanup(func() { host, quotaTransport = oldHost, oldTransport })
+	t.Setenv("CPA_API_KEY", "test-key")
+	raw, status := quotaResponse(pluginapi.ManagementRequest{Headers: http.Header{"Authorization": []string{"Bearer test-key"}}})
+	var envelope struct {
+		Result pluginapi.ManagementResponse `json:"result"`
+	}
+	if status != 0 || json.Unmarshal(raw, &envelope) != nil || envelope.Result.StatusCode != 200 {
+		t.Fatal("request failed")
+	}
+	var document struct {
+		SchemaVersion int `json:"schema_version"`
+		Providers     []struct {
+			Accounts []struct {
+				Groups []struct {
+					Windows []map[string]any `json:"windows"`
+				} `json:"groups"`
+			} `json:"accounts"`
+		} `json:"providers"`
+	}
+	if err := json.Unmarshal(envelope.Result.Body, &document); err != nil {
+		t.Fatal(err)
+	}
+	if document.SchemaVersion != 1 || len(document.Providers) < 2 || len(document.Providers[1].Accounts) != 1 || len(document.Providers[1].Accounts[0].Groups) != 1 || len(document.Providers[1].Accounts[0].Groups[0].Windows) == 0 {
+		t.Fatal("missing canonical window")
+	}
+	window := document.Providers[1].Accounts[0].Groups[0].Windows[0]
+	if _, ok := window["remaining_fraction"]; !ok {
+		t.Fatal("missing remaining fraction")
+	}
+	if _, ok := window["reset_at"]; !ok {
+		t.Fatal("missing reset_at")
+	}
+	for _, field := range []string{"reset_time", "validity", "source", "fetched_at", "scope"} {
+		if _, ok := window[field]; ok {
+			t.Fatalf("unexpected legacy field %s", field)
+		}
+	}
+}
+
 func TestAuthFailsBeforeHost(t *testing.T) {
 	old := host
 	h := &fakeHost{}
